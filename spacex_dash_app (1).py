@@ -69,18 +69,16 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
 # Add a callback function for `site-dropdown` as input, `success-pie-chart` as output
 
 @app.callback(Output(component_id='success-pie-chart', component_property='figure'),
-            [Input(component_id='site-dropdown', component_property='value')])
+              [Input(component_id='site-dropdown', component_property='value')])
 def update_pie_chart(selected_site):
     if selected_site == 'ALL':
-        pie_data = spacex_df.groupby('Launch Site')['class'].value_counts().reset_index(name='counts')
+        # Filter DataFrame for successful launches
+        successful_launches = spacex_df[spacex_df['class'] == 1]
+        pie_data = successful_launches.groupby('Launch Site').size().reset_index(name='counts')
         fig = px.pie(pie_data, values='counts', names='Launch Site', title='Total Successful Launches in All Sites')
     else:
-        filtered_df = spacex_df[spacex_df['Launch Site'] == selected_site]
-        #print(selected_site)
-    
-        pie_data = filtered_df['class'].value_counts().reset_index(name='counts')
-        #print(pie_data)
-        
+        filtered_df = spacex_df[(spacex_df['Launch Site'] == selected_site)]
+        pie_data = filtered_df.groupby('class').size().reset_index(name='counts')
         fig = px.pie(pie_data, values='counts', names='class', title=f'Success Launches for Site {selected_site}')
     return fig
 # TASK 4:
@@ -114,10 +112,10 @@ if __name__ == '__main__':
 
 """ 
 Which site has the largest successful launches?
-CCAFS-LC40 
+KSC LC-39A
 
 Which site has the highest launch success rate?
- CCAFS -SLC 40
+KSC LC-39A
 Which payload range(s) has the highest launch success rate?
 3000 -4000 kgs 7/10 
 0-5300kgs better than 5000-10000
